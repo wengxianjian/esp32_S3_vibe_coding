@@ -27,13 +27,14 @@
 static bool led_mode_breathing = true;  /* LED模式标志: true-呼吸灯, false-闪烁 */
 
 /**
- * @brief       按键按下回调函数
- * @param       无
+ * @brief       BOOT 按键按下回调函数
+ * @param       id: 触发的按键编号 (此处固定为 BUTTON_BOOT)
  * @retval      无
  */
-void button_pressed_callback(void)
+void boot_button_callback(button_id_t id)
 {
     led_mode_breathing = !led_mode_breathing;  /* 切换LED模式 */
+    printf("[BTN] BOOT -> LED mode: %s\n", led_mode_breathing ? "breathing" : "blink");
 }
 
 /**
@@ -62,15 +63,14 @@ void app_main(void)
     led_init();             /* 初始化LED */
     printf("[INFO] LED initialized\n");
     
-    button_init();          /* 初始化按键 */
-    button_register_callback(button_pressed_callback);  /* 注册按键回调 */
-    printf("[INFO] Button initialized\n");
-    printf("[INFO] System started, press button to toggle LED mode\n");
+    button_init();          /* 初始化按键 (GPTimer 硬件定时器轮询5个按键) */
+    button_register_callback(BUTTON_BOOT, boot_button_callback);  /* 注册 BOOT 按键回调: 切换灯效 */
+    printf("[INFO] Button initialized (GPTimer polling, %d buttons)\n", BUTTON_NUM);
+    printf("[INFO] System started, press BOOT to toggle LED mode\n");
 
     while(1)
     {
-        button_scan();      /* 扫描按键 */
-        
+        /* 按键扫描已由 GPTimer 定时器任务完成, 主循环只负责 LED 灯效 */
         if (led_mode_breathing) {
             ledc_breathing_led();   /* 呼吸灯效果 */
         } else {
