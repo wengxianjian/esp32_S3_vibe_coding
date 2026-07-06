@@ -73,4 +73,13 @@ int uart_cmd_unregister(const char *cmd_name);
  */
 void uart_cmd_print_help(void);
 
+/**
+ * @brief       从代码中直接执行命令（不经过UART RX）
+ * @note        可在任意任务上下文中调用，命令会被复制到内部缓冲区后解析执行
+ * @param       cmd_str: 命令字符串，如 "led blink"（无需换行符）
+ * @retval      0: 成功执行, -1: 命令未找到, -2: 参数错误
+ * @example     uart_cmd_execute("led blink");
+ */
+int uart_cmd_execute(const char *cmd_str);
+
 #endif /* __UART_CMD_H_ */

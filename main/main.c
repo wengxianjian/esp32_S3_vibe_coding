@@ -107,6 +107,10 @@ void app_main(void)
     printf("[INFO] System started, press BOOT to toggle LED mode\n");
     printf("[INFO] Send 'help' via UART to see available commands\n");
 
+    // uart cmd test fun
+    //uart_cmd_execute("led blink");
+    //uart_cmd_execute("led breathing");
+    
     while(1)
     {
         /* 按键扫描已由 GPTimer 定时器任务完成, 主循环只负责 LED 灯效 */

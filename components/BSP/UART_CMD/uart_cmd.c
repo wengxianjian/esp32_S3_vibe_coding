@@ -75,9 +75,9 @@ static void uart_hw_init(void)
 /**
  * @brief       查找并执行命令
  * @param       cmd_str: 接收到的命令字符串
- * @retval      无
+ * @retval      0: 成功执行, -1: 命令未找到
  */
-static void execute_command(char *cmd_str)
+static int execute_command(char *cmd_str)
 {
     /* 去除首尾空白字符 */
     while (*cmd_str == ' ' || *cmd_str == '\t') {
@@ -93,7 +93,7 @@ static void execute_command(char *cmd_str)
 
     /* 空命令直接返回 */
     if (len == 0) {
-        return;
+        return 0;
     }
 
     /* 打印接收到的命令 */
@@ -102,7 +102,7 @@ static void execute_command(char *cmd_str)
     /* 特殊命令：help */
     if (strcmp(cmd_str, "help") == 0) {
         uart_cmd_print_help();
-        return;
+        return 0;
     }
 
     /* 在命令表中查找匹配的命令（支持多词命令名） */
@@ -134,7 +134,7 @@ static void execute_command(char *cmd_str)
                 if (cmd_table[i].handler != NULL) {
                     cmd_table[i].handler(argc, argv);
                 }
-                return;
+                return 0;
             }
         }
     }
@@ -143,6 +143,7 @@ static void execute_command(char *cmd_str)
     char *first_word = strtok(cmd_str, " \t");
     printf("[UART] Unknown command: %s\n", first_word ? first_word : cmd_str);
     printf("[UART] Type 'help' for available commands\n");
+    return -1;
 }
 
 /**
@@ -298,4 +299,34 @@ void uart_cmd_print_help(void)
 
     printf("  %-20s- Show this help message\n", "help");
     printf("=================================\n\n");
+}
+
+/**
+ * @brief       从代码中直接执行命令（不经过UART RX）
+ * @note        可在任意任务上下文中调用，命令会被复制到内部缓冲区后解析执行
+ * @param       cmd_str: 命令字符串，如 "led blink"（无需换行符）
+ * @retval      0: 成功执行, -1: 命令未找到, -2: 参数错误
+ * @example     uart_cmd_execute("led blink");
+ */
+int uart_cmd_execute(const char *cmd_str)
+{
+    if (cmd_str == NULL) {
+        printf("[UART] Error: NULL command string\n");
+        return -2;
+    }
+
+    /* 检查命令长度 */
+    int len = strlen(cmd_str);
+    if (len == 0 || len >= UART_CMD_MAX_CMD_LEN) {
+        printf("[UART] Error: Invalid command length\n");
+        return -2;
+    }
+
+    /* 将命令复制到内部缓冲区（execute_command会修改字符串） */
+    char cmd_buffer[UART_CMD_MAX_CMD_LEN];
+    strncpy(cmd_buffer, cmd_str, UART_CMD_MAX_CMD_LEN - 1);
+    cmd_buffer[UART_CMD_MAX_CMD_LEN - 1] = '\0';
+
+    /* 执行命令 */
+    return execute_command(cmd_buffer);
 }
