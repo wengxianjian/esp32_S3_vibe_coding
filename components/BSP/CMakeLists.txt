@@ -1,10 +1,12 @@
 set(src_dirs
             LED
-            BUTTON)
+            BUTTON
+            UART_CMD)
 
 set(include_dirs
             LED
-            BUTTON)
+            BUTTON
+            UART_CMD)
 
 set(requires
             driver)

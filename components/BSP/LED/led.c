@@ -21,6 +21,9 @@
 #include "led.h"
 #include "math.h"
 
+/* 当前LED模式 */
+static led_mode_t current_led_mode = LED_MODE_BREATHING;
+
 /**
  * @brief       初始化LEDC (LED PWM控制器)
  * @param       无
@@ -127,4 +130,28 @@ void ledc_breathing_led(void)
 void led_init(void)
 {
     ledc_init();  /* 初始化LEDC */
+}
+
+/**
+ * @brief       设置LED模式
+ * @param       mode: LED模式 (LED_MODE_BREATHING 或 LED_MODE_BLINK)
+ * @retval      无
+ */
+void led_set_mode(led_mode_t mode)
+{
+    if (mode < LED_MODE_MAX) {
+        current_led_mode = mode;
+        printf("[LED] Mode set to: %s\n",
+               mode == LED_MODE_BREATHING ? "breathing" : "blink");
+    }
+}
+
+/**
+ * @brief       获取当前LED模式
+ * @param       无
+ * @retval      当前LED模式
+ */
+led_mode_t led_get_mode(void)
+{
+    return current_led_mode;
 }

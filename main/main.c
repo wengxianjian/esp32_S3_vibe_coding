@@ -18,13 +18,38 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "nvs_flash.h"
 #include "led.h"
 #include "button.h"
+#include "uart_cmd.h"
 
-static bool led_mode_breathing = true;  /* LED模式标志: true-呼吸灯, false-闪烁 */
+/**
+ * @brief       串口命令: "led blink" 处理函数
+ * @note        切换LED为闪烁模式, 可通过 uart_cmd_register 注册更多命令
+ * @param       argc: 参数个数
+ * @param       argv: 参数数组
+ * @retval      无
+ */
+static void cmd_led_blink(int argc, char *argv[])
+{
+    led_set_mode(LED_MODE_BLINK);
+    printf("[CMD] LED mode switched to blink via UART command\n");
+}
+
+/**
+ * @brief       串口命令: "led breathing" 处理函数
+ * @param       argc: 参数个数
+ * @param       argv: 参数数组
+ * @retval      无
+ */
+static void cmd_led_breathing(int argc, char *argv[])
+{
+    led_set_mode(LED_MODE_BREATHING);
+    printf("[CMD] LED mode switched to breathing via UART command\n");
+}
 
 /**
  * @brief       BOOT 按键按下回调函数
@@ -33,8 +58,12 @@ static bool led_mode_breathing = true;  /* LED模式标志: true-呼吸灯, fals
  */
 void boot_button_callback(button_id_t id)
 {
-    led_mode_breathing = !led_mode_breathing;  /* 切换LED模式 */
-    printf("[BTN] BOOT -> LED mode: %s\n", led_mode_breathing ? "breathing" : "blink");
+    /* 切换LED模式 */
+    led_mode_t new_mode = (led_get_mode() == LED_MODE_BREATHING) ?
+                           LED_MODE_BLINK : LED_MODE_BREATHING;
+    led_set_mode(new_mode);
+    printf("[BTN] BOOT -> LED mode: %s\n",
+           new_mode == LED_MODE_BREATHING ? "breathing" : "blink");
 }
 
 /**
@@ -51,6 +80,8 @@ void app_main(void)
     printf("  Serial Port Ready!\n");
     printf("=============================\n");
     
+    printf("==wx add,hello world!======\n");
+
     ret = nvs_flash_init(); /* 初始化NVS */
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -66,12 +97,20 @@ void app_main(void)
     button_init();          /* 初始化按键 (GPTimer 硬件定时器轮询5个按键) */
     button_register_callback(BUTTON_BOOT, boot_button_callback);  /* 注册 BOOT 按键回调: 切换灯效 */
     printf("[INFO] Button initialized (GPTimer polling, %d buttons)\n", BUTTON_NUM);
+
+    /* 初始化UART命令模块 */
+    uart_cmd_init();
+    /* 注册串口命令 */
+    uart_cmd_register("led blink", cmd_led_blink, "Switch LED to blink mode");
+    uart_cmd_register("led breathing", cmd_led_breathing, "Switch LED to breathing mode");
+    printf("[INFO] UART command module initialized\n");
     printf("[INFO] System started, press BOOT to toggle LED mode\n");
+    printf("[INFO] Send 'help' via UART to see available commands\n");
 
     while(1)
     {
         /* 按键扫描已由 GPTimer 定时器任务完成, 主循环只负责 LED 灯效 */
-        if (led_mode_breathing) {
+        if (led_get_mode() == LED_MODE_BREATHING) {
             ledc_breathing_led();   /* 呼吸灯效果 */
         } else {
             led_blink_500ms();      /* LED 500ms闪烁 */

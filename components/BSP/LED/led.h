@@ -51,10 +51,19 @@ enum GPIO_OUTPUT_STATE
 #define LEDC_DUTY_RES           LEDC_TIMER_8_BIT
 #define LEDC_FREQUENCY          1000  /* PWM频率 1kHz */
 
+/* LED模式枚举 */
+typedef enum {
+    LED_MODE_BREATHING = 0,     /* 呼吸灯模式 */
+    LED_MODE_BLINK,             /* 闪烁模式 */
+    LED_MODE_MAX
+} led_mode_t;
+
 /* 函数声明 */
 void led_init(void);                    /* 初始化LED */
 void ledc_breathing_led(void);          /* 呼吸灯效果 */
 void led_set_duty(uint32_t duty);       /* 设置占空比 */
 void led_blink_500ms(void);             /* LED 500ms闪烁 */
+void led_set_mode(led_mode_t mode);     /* 设置LED模式 */
+led_mode_t led_get_mode(void);          /* 获取当前LED模式 */
 
 #endif
