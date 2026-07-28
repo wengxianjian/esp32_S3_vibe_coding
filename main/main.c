@@ -47,6 +47,7 @@
 #include "led.h"
 #include "button.h"
 #include "uart_cmd.h"
+#include "timer.h"
 
 /**
  * @brief       串口命令: "led <mode>" 统一处理函数
@@ -147,6 +148,9 @@ void app_main(void)
     printf("[INFO] UART command module initialized\n");
     printf("[INFO] System started, press BOOT to toggle LED mode\n");
     printf("[INFO] Send 'help' via UART to see available commands\n");
+
+    timer_init(1000 * 1000);    /* 初始化高分辨率定时器 (周期 1秒 = 1000000微秒) */
+    printf("[INFO] Timer initialized (1s period)\n");
 
     while(1)
     {

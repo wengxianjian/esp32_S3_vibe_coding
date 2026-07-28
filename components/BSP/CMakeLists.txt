@@ -1,15 +1,18 @@
 set(src_dirs
             LED
             BUTTON
-            UART_CMD)
+            UART_CMD
+            TIMER)
 
 set(include_dirs
             LED
             BUTTON
-            UART_CMD)
+            UART_CMD
+            TIMER)
 
 set(requires
-            driver)
+            driver
+            esp_timer)
 
 idf_component_register(SRC_DIRS ${src_dirs} INCLUDE_DIRS ${include_dirs} REQUIRES ${requires})
 
