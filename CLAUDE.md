@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目简介
 
-基于 **ESP-IDF** 框架的 ESP32-S3 嵌入式应用（正点原子 ATK-DNESP32S3 开发板）。实现 LED 呼吸灯 / 闪烁两种效果，通过按键切换模式。CMake 项目名为 `01_led`。
+基于 **ESP-IDF** 框架的 ESP32-S3 嵌入式应用（ATK-DNESP32S3 开发板）。实现 LED 呼吸灯 / 闪烁两种效果，通过按键切换模式。CMake 项目名为 `01_led`。
 
 ## 常用命令
 

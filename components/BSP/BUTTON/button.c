@@ -1,19 +1,12 @@
 /**
  ****************************************************************************************************
  * @file        button.c
- * @author      正点原子团队(ALIENTEK)
+ * @author      AI Assistant
  * @version     V2.0
  * @date        2026-06-22
  * @brief       按键驱动代码 (GPTimer 硬件定时器轮询, 支持5个按键)
- * @license     Copyright (c) 2020-2032, 广州市星翼电子科技有限公司
  ****************************************************************************************************
  * @attention
- *
- * 实验平台:正点原子 ESP32-S3 开发板
- * 在线视频:www.yuanzige.com
- * 技术论坛:www.openedv.com
- * 公司网址:www.alientek.com
- * 购买地址:openedv.taobao.com
  *
  * 设计说明:
  *   - 使用 GPTimer 硬件定时器, 每 BUTTON_SCAN_PERIOD_MS(20ms) 产生一次中断;
